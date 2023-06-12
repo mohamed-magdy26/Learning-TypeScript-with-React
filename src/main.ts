@@ -1,39 +1,124 @@
-// Type Aliases
+// ** literal Types
 
-type stringOrNumber = string | number;
+let myName: 'Mohamed';
 
-//! error interface is not for aliases
-//! think of it for defining objects and classes types
-// interface stringOrNumber = string | number
+myName = 'Mohamed'; // it can only assigned with this value
 
-// type Guitarist = {
-//   name: string;
-//   active?: boolean;
-//   albums: (string | number)[];
-// };
+// it can only assigned to one of these values
+let UserName: 'Mohamed25' | 'Mohamed26' | 'Mohamed27';
 
-/* 
-type Guitarist = {
-  name: string;
-  active?: boolean;
-  albums: stringOrNumber[]; // * we used our alias type
+// it's either 1 or 0
+let isActive: 0 | 1 = 0;
+isActive = 1;
+// isActive = 2; //! not Assignable
+
+// ** Functions
+
+// void return type
+// typescript infers void type as we don't return anything
+// (we can explicit it of course)
+const logMsg = (msg: any) => {
+  console.log(msg);
 };
- */
 
-/* 
-type stringOrNumberArray = (string | number)[];
-
-type Guitarist = {
-  name: string;
-  active?: boolean;
-  albums: stringOrNumberArray; // * we made more abstract alias
+// explicitly defined the return type and parameters types
+const add = (a: number, b: number): number => {
+  return a + b;
 };
- */
 
-type stringOrNumberArray = stringOrNumber[]; //* used alias inside another alias
+//* we can use both function definition and arrow function definition
+const sum = function (a: number, b: number): number {
+  return a + b;
+};
 
-type Guitarist = {
-  name: string;
-  active?: boolean;
-  albums: stringOrNumberArray; //* we uses composed alias
+// we are using the same type for different function
+// we can use type aliases to make it short and reusable
+
+type mathFunction = (a: number, b: number) => number;
+// also interfaces is allowed
+interface mathFunction2 {
+  (a: number, b: number): number;
+}
+
+const multiply: mathFunction = (a, b) => {
+  return a * b;
+};
+
+const multiply2: mathFunction2 = (a, b) => {
+  return a * b;
+};
+
+//* optional parameters
+
+// if "c" is optional parameter
+// it may become undefined so we have to use narrower (if statement)
+// optional parameters must be at the end
+const addTwoOrThree = (a: number, b: number, c?: number): number => {
+  if (c) {
+    return a + b + c;
+  } // if we stopped here function may return number or undefined
+
+  return a + b;
+};
+
+// default param value
+// we set a default value for arguments
+
+const add5orAnotherValue = (a: number, c: number = 5) => {
+  return a + c;
+};
+
+add5orAnotherValue(2); // add 2 + 5
+add5orAnotherValue(2, 4); // add 2 + 4
+
+// if the default value at the start
+// we pass undefined to use the default value
+
+const add5orAnotherValue2 = (c: number = 5, a: number) => {
+  return a + c;
+};
+
+add5orAnotherValue2(undefined, 2); // add 5 + 2
+add5orAnotherValue2(2, 4); // add 2 + 4
+
+// Rest Parameters
+// rest is passed as arguments but deal with it as array
+// typescript infers reduce to number type
+// as total function only accepts number and return number
+const total = (...rest: number[]) => {
+  // rest is an array
+  return rest.reduce((value, accumulator) => accumulator + value, 0);
+};
+
+// we pass parameters normally
+console.log(total(1, 2, 3, 4)); // 10
+
+// custom type guard
+// TypeScript infers boolean type
+// I just made it "true | false" as literal type
+const isNumber = (value: any): true | false => {
+  return typeof value === 'number' ? true : false;
+};
+
+// never Type //* if there is an error or infinite loop
+
+// typescript infers never type (hover to see it)
+const newError = (msg: string) => {
+  throw new Error(msg);
+};
+
+//* commented it to not cause infinite loop (ha ha ha)
+/* 
+const noExit = () => {
+  while(true) {
+    console.log('hello');
+  }
+}
+*/
+
+// use of the never type
+const numberOrString = (value: number | string): string => {
+  if (typeof value === 'string') return 'string';
+  if (isNumber(value)) return 'number';
+  return newError('This should never happen!');
 };
