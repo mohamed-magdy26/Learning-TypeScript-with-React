@@ -1,124 +1,71 @@
-// ** literal Types
+// Type assertions (Type Casting)
+// we Know better than TS
 
-let myName: 'Mohamed';
+type one = string;
+type two = string | number;
+type three = 'ahmed';
 
-myName = 'Mohamed'; // it can only assigned with this value
+let a = 'mohamed' as two; // less specific
+a = 10;
 
-// it can only assigned to one of these values
-let UserName: 'Mohamed25' | 'Mohamed26' | 'Mohamed27';
+// another way but doesn't work with react
+let d = <one>'world';
+let e = <string | number>'world';
 
-// it's either 1 or 0
-let isActive: 0 | 1 = 0;
-isActive = 1;
-// isActive = 2; //! not Assignable
-
-// ** Functions
-
-// void return type
-// typescript infers void type as we don't return anything
-// (we can explicit it of course)
-const logMsg = (msg: any) => {
-  console.log(msg);
+// can return string or number
+const addOrConcat = (a: number, b: number, c: 'add' | 'concat') => {
+  if (c == 'add') return a + b;
+  return '' + a + b;
 };
 
-// explicitly defined the return type and parameters types
-const add = (a: number, b: number): number => {
-  return a + b;
-};
+console.log(addOrConcat(2, 3, 'add')); // 5 number
+console.log(addOrConcat(2, 3, 'concat')); // 23 string
 
-//* we can use both function definition and arrow function definition
-const sum = function (a: number, b: number): number {
-  return a + b;
-};
+// ! we want a number but the function can return string or number
+// let numberValue: number = addOrConcat(2, 3, 'add');
 
-// we are using the same type for different function
-// we can use type aliases to make it short and reusable
+// * we can use type assertion to tell typescript we know better
+// * and the returned value is going to be number by using as
+// let numberValue: number = addOrConcat(2, 3, 'add') as number;
 
-type mathFunction = (a: number, b: number) => number;
-// also interfaces is allowed
-interface mathFunction2 {
-  (a: number, b: number): number;
-}
+// **** Note, TS sees no problem
+// **** but the returned value is string as we used concat
+// **** but type casting using number (we know Better than TS)
+let numberValue: number = addOrConcat(2, 3, 'concat') as number;
 
-const multiply: mathFunction = (a, b) => {
-  return a * b;
-};
+// 10 as string // ! of course an error as 10 for sure is a number
 
-const multiply2: mathFunction2 = (a, b) => {
-  return a * b;
-};
+// but we can do this
 
-//* optional parameters
+// unknown is like any but has some other cases
+10 as unknown as string; // avoid it for now but maybe use it later
 
-// if "c" is optional parameter
-// it may become undefined so we have to use narrower (if statement)
-// optional parameters must be at the end
-const addTwoOrThree = (a: number, b: number, c?: number): number => {
-  if (c) {
-    return a + b + c;
-  } // if we stopped here function may return number or undefined
+// ** The DOM
 
-  return a + b;
-};
+// type script infers type HTMLImageElement or null because maybe it doesn't exist in the dom
+// it infers it to HTMLImageElement because we used "img tag"
+const img = document.querySelector('img');
 
-// default param value
-// we set a default value for arguments
+// but in case of classes and Ids it will be just Element or null
+const img4 = document.querySelector('#img');
 
-const add5orAnotherValue = (a: number, c: number = 5) => {
-  return a + c;
-};
+// if we used something like getElementById it will be HTMLElement or null
+const img5 = document.getElementById('img');
 
-add5orAnotherValue(2); // add 2 + 5
-add5orAnotherValue(2, 4); // add 2 + 4
+// we can use (!) to tell TS we are sure element exist in DOM or type casting (as HTMLImageElement)
 
-// if the default value at the start
-// we pass undefined to use the default value
+// img.src; //! TS error and that's because maybe is null
 
-const add5orAnotherValue2 = (c: number = 5, a: number) => {
-  return a + c;
-};
+// img5.src;  //! TS will also highlight src also and that's
+//! src property may not exist for this HTMLElement so we use (as HTMLImageElement)
+// const img5 = document.getElementById('img') as HTMLImageElement;
 
-add5orAnotherValue2(undefined, 2); // add 5 + 2
-add5orAnotherValue2(2, 4); // add 2 + 4
+// we can use (!) to tell TS we are sure element exist in DOM or type casting
+// add (as HTMLImageElement)
+// add (as Element)
+// add (as HTMLElement)
+// depending on the case
 
-// Rest Parameters
-// rest is passed as arguments but deal with it as array
-// typescript infers reduce to number type
-// as total function only accepts number and return number
-const total = (...rest: number[]) => {
-  // rest is an array
-  return rest.reduce((value, accumulator) => accumulator + value, 0);
-};
-
-// we pass parameters normally
-console.log(total(1, 2, 3, 4)); // 10
-
-// custom type guard
-// TypeScript infers boolean type
-// I just made it "true | false" as literal type
-const isNumber = (value: any): true | false => {
-  return typeof value === 'number' ? true : false;
-};
-
-// never Type //* if there is an error or infinite loop
-
-// typescript infers never type (hover to see it)
-const newError = (msg: string) => {
-  throw new Error(msg);
-};
-
-//* commented it to not cause infinite loop (ha ha ha)
-/* 
-const noExit = () => {
-  while(true) {
-    console.log('hello');
-  }
-}
-*/
-
-// use of the never type
-const numberOrString = (value: number | string): string => {
-  if (typeof value === 'string') return 'string';
-  if (isNumber(value)) return 'number';
-  return newError('This should never happen!');
-};
+const img2 = document.querySelector('img') as HTMLImageElement;
+// const img2 = <HTMLImageElement>document.querySelector('img'); // another syntax
+const img3 = document.querySelector('img')!;
